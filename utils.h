@@ -3,8 +3,9 @@
 
 #include "Arduino.h"
 #include "heltec.h"
+#include "Stream.h"
 
-
+String readStringLn(Stream *stream) { return stream->readStringUntil('\n'); }
 String readStringLn() {	return Serial.readStringUntil('\n'); }
 
 void writeString(uint16_t x, uint16_t y, int linelen, String txt) {

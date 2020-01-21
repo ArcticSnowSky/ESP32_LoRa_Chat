@@ -14,7 +14,14 @@
 #include "images.h"
 #include "chat.h"
 #include "utils.h"
+#include "dualstream.h"
+#include "multistream.h"
 
+#include "BluetoothSerial.h"
+
+#if !defined(CONFIG_BT_ENABLED) || !defined(CONFIG_BLUEDROID_ENABLED)
+#error Bluetooth is not enabled! Please run `make menuconfig` to and enable it
+#endif
 
 #define BAND    868E6  //you can set band here directly,e.g. 868E6,915E6
 
@@ -22,13 +29,21 @@
 
 
 Chat chat;
-bool deepsleepflag=false;
+BluetoothSerial SerialBT;
+/*Stream* streams[] = {&Serial, &SerialBT};
+int STREAMS_LEN (sizeof(streams) / sizeof(Stream*));
+static MultiStream ms = MultiStream(streams, STREAMS_LEN);*/
+static DualStream dualStream = DualStream(Serial, SerialBT);
+
+bool deepsleepflag = false;	// Entweder per Befehl oder wenn Led Aktiv ist, Taste Drücken
+
 
 void setup()
 {
 	Heltec.begin(true /*DisplayEnable Enable*/, true /*LoRa Enable*/, true /*Serial Enable*/, true /*LoRa use PABOOST*/, BAND /*LoRa RF working band*/);
   
 	logo();
+	SerialBT.begin("ESP32 SS Test"); //Bluetooth device name
 	delay(500);
 
 	Serial.flush();
@@ -40,7 +55,7 @@ void setup()
 	Heltec.display->display();
 	delay(1000);
 	Heltec.display->clear();
-	chat.init();
+	chat.init(&dualStream);
 
 	Serial.println("Chat bereit\nEingaben über serialport möglich\nSchreibe /help für Hilfsbefehle");
 
@@ -73,9 +88,9 @@ void loop()
 		esp_deep_sleep_start();
 	}
 
-	if(Serial.available())
+	if(dualStream.available())
 	{
-		String msg = readStringLn();
+		String msg = readStringLn(&dualStream);
 		if (msg != NULL)
 		{
 			send(msg);
@@ -83,6 +98,7 @@ void loop()
 			checkCommands(msg);
 		}
 	}
+
 	chat.process();
 }
 

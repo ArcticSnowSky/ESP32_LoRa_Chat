@@ -1,6 +1,16 @@
 #ifndef __CHAT_HPP__
 #define __CHAT_HPP__
 
+/*
+ * Chat
+ * 
+ * Uses HELTEC ESP32 Display and Streams to provide
+ * a graphical conversationSystem (chat).
+ *
+ * by Thomas Mailänder <mailaender.t@gmail.com>
+ * 19.01.2020
+*/
+
 #include "Arduino.h"
 #include "heltec.h"
 
@@ -30,6 +40,10 @@ class Chat
 	};
 
 	public:
+		void init(Stream *stream) {
+			init();
+			this->stream = stream ? stream : &Serial;
+		}
 		void init() {
 			Heltec.display->clear();
 			Heltec.display->setFont(ArialMT_Plain_10);
@@ -39,10 +53,11 @@ class Chat
 			Heltec.display->setLogBuffer(CHAT_LINES, 50);
 			topInfo = "Sent: " SENT_TXT "   Received: " RCVD_TXT;
 			#endif
+			this->stream = stream ? stream : &Serial;
 		}
 		
 		String topInfo;
-
+		
 		void sent(String msg) { addConversation(msg, ALIGNMENT_SENT); }
 		void received(String msg) { addConversation(msg, ALIGNMENT_RCVD); }
 		void note(String note) { addConversation(note, ALIGNMENT_NONE); }
@@ -81,7 +96,8 @@ class Chat
 		}
 
 	private:
-		
+		Stream* stream = &Serial;
+
 		struct Conversation {
 			String txt;
 			ALIGNMENT alignment;
@@ -96,7 +112,8 @@ class Chat
 			conversation[CHAT_LINES -1].txt = msg;
 			conversation[CHAT_LINES -1].alignment = alignment;
 			newMsgs = true;
-			Serial.println(getAlignmentText(alignment) + " " + msg);
+			stream->println(getAlignmentText(alignment) + " " + msg);
+
 		}
 
 		String getAlignmentText(ALIGNMENT alignment)
