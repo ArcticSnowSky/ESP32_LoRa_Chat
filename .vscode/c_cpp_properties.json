@@ -1,0 +1,22 @@
+{
+    "configurations": [
+        {
+            "name": "Linux",
+            "includePath": [
+                "/home/snowsky/Arduino/libraries/Heltec_ESP32_Dev-Boards/src",
+                "/home/snowsky/.arduino15/packages/Heltec-esp32/tools/**",
+                "/home/snowsky/.arduino15/packages/Heltec-esp32/hardware/esp32/0.0.4/**",
+                "${workspaceFolder}/**"
+            ],
+            "defines": [
+                "ESP32"
+            ],
+            "compilerPath": "/usr/bin/gcc",
+            "cStandard": "c11",
+            "cppStandard": "c++17",
+            "intelliSenseMode": "clang-x64",
+            "forcedInclude": []
+        }
+    ],
+    "version": 4
+}
