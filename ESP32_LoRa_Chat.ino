@@ -57,7 +57,7 @@ void setup()
 	Heltec.display->clear();
 	chat.init(&dualStream);
 
-	Serial.println("Chat bereit\nEingaben über serialport möglich\nSchreibe /help für Hilfsbefehle");
+	dualStream.println("Chat bereit\nEingaben über serialport möglich\nSchreibe /help für Hilfsbefehle");
 
 	attachInterrupt(KEY_BUILTIN, interrupt_GPIO0, FALLING);
 	LoRa.onReceive(onReceive);
@@ -69,7 +69,7 @@ void loop()
 {
 	if(deepsleepflag)
 	{
-		Serial.println("Entering deepSleep");
+		dualStream.println("Entering deepSleep");
 		LoRa.end();
 		LoRa.sleep();
 		delay(100);
@@ -109,14 +109,14 @@ void checkCommands(String msg)
 		msg = msg.substring(1);
 		msg.toLowerCase();
 		if (msg == "help") {
-			Serial.println("TestBefehle");
-			Serial.println("");
-			Serial.println("Befehle müssen /cmd [true|false|integer] geschrieben werden");
-			Serial.println("  deepSleepFlag : DeepSleep, Wake unbekannt");
-			Serial.println("  sleeptimer    : Schläft für x|20 sekunden");
-			Serial.println("  sleepkey      : Bei Tastendruck");
-			Serial.println("  gpio25        : Schaltet led");
-			Serial.println("  help          : Diese hilfe");
+			dualStream.println("TestBefehle");
+			dualStream.println("");
+			dualStream.println("Befehle müssen /cmd [true|false|integer] geschrieben werden");
+			dualStream.println("  deepSleepFlag : DeepSleep, Wake unbekannt");
+			dualStream.println("  sleeptimer    : Schläft für x|20 sekunden");
+			dualStream.println("  sleepkey      : Bei Tastendruck");
+			dualStream.println("  gpio25        : Schaltet led");
+			dualStream.println("  help          : Diese hilfe");
 			return;
 		}
 		else if (msg.startsWith("sleeptimer")) {
@@ -125,14 +125,14 @@ void checkCommands(String msg)
 			int wakeup_time_sec = atoi(wakeup_time_sec_txt);
 			if (wakeup_time_sec == 0)
 				wakeup_time_sec = 20;
-			Serial.printf("Enabling timer wakeup, %ds\n", wakeup_time_sec);
+			dualStream.printf("Enabling timer wakeup, %ds\n", wakeup_time_sec);
 			delay(15);
 			esp_sleep_enable_timer_wakeup(wakeup_time_sec * 1000000);
 			esp_deep_sleep_start();
 			return;
 		}
 		else if (msg == "sleepkey") {
-			Serial.println("Enabling ext wakeup");
+			dualStream.println("Enabling ext wakeup");
 			delay(15);
 			esp_sleep_enable_ext1_wakeup(1ULL << KEY_BUILTIN, ESP_EXT1_WAKEUP_ALL_LOW);
 			esp_deep_sleep_start();
@@ -169,12 +169,12 @@ void interrupt_GPIO0()
 	delay(10);
 	if(digitalRead(KEY_BUILTIN)==LOW)
 	{
-		Serial.print("interrupt_GPIO0->digitalRead(KEY_BUILTIN)==LOW");
+		dualStream.print("interrupt_GPIO0->digitalRead(KEY_BUILTIN)==LOW");
 		if(digitalRead(LED)==HIGH) {
-			Serial.print("->digitalRead(LED)==HIGH");
+			dualStream.print("->digitalRead(LED)==HIGH");
 			deepsleepflag=true;
 		}
-		Serial.println();
+		dualStream.println();
 	} else {
 		Serial.println("\0");
 		Serial.flush();
@@ -189,9 +189,10 @@ void onReceive(int packetSize)//LoRa receiver interrupt service
 	String rcvdMsg = "";
 	while (LoRa.available())
 		rcvdMsg += (char) LoRa.read();
-	rcvdMsg += "\0";
-	chat.topInfo = "RSSI " + String(LoRa.packetRssi(), DEC) + "  SNR "+ String(LoRa.packetSnr(), DEC);
-	chat.received(rcvdMsg);
+
+	char charBuf[7] = ""; //-23.56\0
+	chat.topInfo = "RSSI " + String(LoRa.packetRssi(), DEC) + "  SNR " + dtostrf(LoRa.packetSnr(), sizeof(charBuf)-1, 2, charBuf);
+	chat.received(rcvdMsg += "\0");
 }
 
 void send(String msg)
