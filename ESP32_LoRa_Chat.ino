@@ -4,6 +4,8 @@
  * ESP32 LoRa test code
  * 
  * Chatting through LORA
+ * 
+ * Use SPP Terminal via Bluetooth or usb serial
  *
  * by Thomas Mailänder <mailaender.t@gmail.com>
  * 19.01.2020

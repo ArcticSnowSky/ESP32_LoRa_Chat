@@ -3,13 +3,16 @@
         {
             "name": "Linux",
             "includePath": [
-                "/home/snowsky/Arduino/libraries/Heltec_ESP32_Dev-Boards/src",
+                "/home/snowsky/Projekte/Arduino/libraries/Heltec_ESP32_Dev-Boards/src",
                 "/home/snowsky/.arduino15/packages/Heltec-esp32/tools/**",
-                "/home/snowsky/.arduino15/packages/Heltec-esp32/hardware/esp32/0.0.4/**",
-                "${workspaceFolder}/**"
+                "/home/snowsky/.arduino15/packages/Heltec-esp32/hardware/esp32/0.0.5/**",
+                "${workspaceFolder}/**",
+                "/opt/arduino-1.8.13/libraries/**",
+                "/home/snowsky/Projekte/Arduino/libraries/**"
             ],
             "defines": [
-                "ESP32"
+                "ESP32",
+                "USBCON"
             ],
             "compilerPath": "/usr/bin/gcc",
             "cStandard": "c11",
